@@ -34,16 +34,16 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "params_state_hook",
+  "name": "hook_state_params",
   "author": "atiila",
-  "module": "dist/params_state_hook.esm.js",
+  "module": "dist/hook_state_params.esm.js",
   "size-limit": [
     {
-      "path": "dist/params_state_hook.cjs.production.min.js",
+      "path": "dist/hook_state_params.cjs.production.min.js",
       "limit": "10 KB"
     },
     {
-      "path": "dist/params_state_hook.esm.js",
+      "path": "dist/hook_state_params.esm.js",
       "limit": "10 KB"
     }
   ],
