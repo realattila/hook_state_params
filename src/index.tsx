@@ -84,7 +84,6 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
               // value index found is not undefined
               if (indexOfValue != undefined) {
                 // value index found is not -1
-
                 if (indexOfValue != -1) {
                   const foundedValue = (option[key]?.validParams || [])[
                     indexOfValue
@@ -139,20 +138,23 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
                   paramValue
                 );
 
+                // if convertedValue is not string
                 if (typeof convertedValue != 'string') {
                   return convertedValue;
                 } else {
-                  if (Number.isNaN(Number(paramValue))) {
+                  // check if return value is NaN
+                  if (Number.isNaN(Number(convertedValue))) {
                     return undefined;
                   } else {
-                    return Number(paramValue);
+                    // converted value is number
+                    return Number(convertedValue);
                   }
                 }
               })();
               tempState = { ...tempState, [key]: pureValue };
             }
 
-            // state key type is unknow
+            // state key type is never
             else {
               // use default value
               tempState = { ...tempState, [key]: paramValue };
@@ -194,7 +196,10 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
   const searchAsObjectRef = useRef(searchAsObject);
 
   useEffect(() => {
-    if (JSON.stringify(searchAsObject) != JSON.stringify(hookState)) {
+    if (
+      Object.entries(searchAsObject).toString() !=
+      Object.entries(hookState).toString()
+    ) {
       const ParamAbleState = ParamAbleStateObject(hookState);
       setSearch({ ...searchAsObject, ...ParamAbleState }, { replace: true });
     }
@@ -231,6 +236,7 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
     ) {
       // generate params able state
       const ParamAbleState = ParamAbleStateObject(hookState);
+
       // generate new searchParams
       const newSearchParams = { ...searchAsObject, ...ParamAbleState };
       setSearch(newSearchParams, { replace: true });
