@@ -60,5 +60,18 @@
     "tsdx": "^0.14.1",
     "tslib": "^2.4.1",
     "typescript": "^3.9.10"
-  }
+  },
+  "keywords": [
+    "react",
+    "reactjs",
+    "react.js",
+    "react hook",
+    "hook state",
+    "sync hook state",
+    "param state",
+    "param state hook",
+    "hook state params",
+    "react router",
+    "react router dom"
+  ]
 }
