@@ -5,7 +5,9 @@
   "typings": "dist/index.d.ts",
   "files": [
     "dist",
-    "src"
+    "src",
+    "LICENSE",
+    "README.md"
   ],
   "engines": {
     "node": ">=10"
