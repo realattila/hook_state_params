@@ -1,5 +1,5 @@
 // MAIN
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 // HOOKS
 import { useSearchParams } from 'react-router-dom';
@@ -32,8 +32,8 @@ const findCurrenParamInValidParams = (
   currentParams: string
 ) => {
   return validParams
-    .map(item => String(item))
-    .find(item => item === currentParams);
+    .map((item) => String(item))
+    .find((item) => item === currentParams);
 };
 
 const convertNullUndefinedStringToValue = (value: string) => {
@@ -53,13 +53,13 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
     (passedState: typeof state) => {
       let tempState: any = {};
       // mapping state
-      Object.entries(passedState).forEach(itemState => {
+      Object.entries(passedState).forEach((itemState) => {
         const [key, value] = itemState;
 
         // if params ins enabled for this key
         if (option[key].enableParams) {
           // if param is undefined
-          if (searchAsObject[key] === undefined) {
+          if (searchAsObject[key] === 'undefined') {
             // use default value
             tempState = { ...tempState, [key]: value };
           }
@@ -78,7 +78,7 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
             // value found
             if (findedValue != undefined) {
               const indexOfValue = option[key]?.validParams
-                ?.map(item => String(item))
+                ?.map((item) => String(item))
                 .indexOf(findedValue);
 
               // value index found is not undefined
@@ -121,33 +121,57 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
 
             // state key type in boolean
             if (option[key].type === 'boolean') {
-              tempState = { ...tempState, [key]: Boolean(paramValue) };
+              let booleanParamValue = value;
+
+              // we do not have valid params we need to generate value
+              if (
+                paramValue === 'false' ||
+                paramValue === 'False' ||
+                paramValue === 'FALSE'
+              ) {
+                booleanParamValue = false;
+              }
+              tempState = { ...tempState, [key]: Boolean(booleanParamValue) };
             }
 
             // state key type is string
             else if (option[key].type === 'string') {
-              const pureValue = convertNullUndefinedStringToValue(paramValue);
-              tempState = { ...tempState, [key]: pureValue };
+              // for key SearchValue is not exist
+              if (!searchAsObject[key]) {
+                // pass default value
+                tempState = { ...tempState, [key]: value };
+              } else {
+                const pureValue = convertNullUndefinedStringToValue(paramValue);
+                tempState = { ...tempState, [key]: pureValue };
+              }
             }
 
             // state key type is number
             else if (option[key].type === 'number') {
               // pure value for number understand
-              const pureValue = (function() {
-                const convertedValue = convertNullUndefinedStringToValue(
-                  paramValue
-                );
+              const pureValue = (function () {
+                // for key SearchValue is not exist
+                if (!searchAsObject[key]) {
+                  // pass default value
 
-                // if convertedValue is not string
-                if (typeof convertedValue != 'string') {
-                  return convertedValue;
-                } else {
-                  // check if return value is NaN
-                  if (Number.isNaN(Number(convertedValue))) {
-                    return undefined;
+                  return value;
+                }
+                // SearchValue is Exist
+                else {
+                  const convertedValue =
+                    convertNullUndefinedStringToValue(paramValue);
+
+                  // if convertedValue is not string
+                  if (typeof convertedValue != 'string') {
+                    return convertedValue;
                   } else {
-                    // converted value is number
-                    return Number(convertedValue);
+                    // check if return value is NaN
+                    if (Number.isNaN(Number(convertedValue))) {
+                      return undefined;
+                    } else {
+                      // converted value is number
+                      return Number(convertedValue);
+                    }
                   }
                 }
               })();
@@ -165,6 +189,7 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
         // if user not enabled params
         else {
           // use default value
+
           tempState = { ...tempState, [key]: value };
         }
       });
@@ -174,23 +199,23 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
     [option, searchAsObject]
   );
 
+  const [hookState, setHookState] = useState(initState(state));
+
   const ParamAbleStateObject = useCallback(
     (passedState: typeof state): typeof state => {
       let temp: any = {};
 
-      Object.entries(passedState).forEach(item => {
+      Object.entries(passedState).forEach((item) => {
         const [key, value] = item;
         if (option[key].enableParams) {
           temp = { ...temp, [key]: String(value) };
         }
       });
+
       return temp;
     },
     [option]
   );
-
-  const [hookState, setHookState] = useState(initState(state));
-
   const hookStateRef = useRef(hookState);
 
   const searchAsObjectRef = useRef(searchAsObject);
@@ -224,8 +249,10 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
         const newSearchParams = { ...searchAsObject, ...ParamAbleState };
 
         setSearch(newSearchParams, { replace: true });
-        setHookState(newState);
         searchAsObjectRef.current = newSearchParams;
+
+        setHookState(newState);
+        hookStateRef.current = newState;
       }
     }
 
@@ -240,6 +267,8 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
       // generate new searchParams
       const newSearchParams = { ...searchAsObject, ...ParamAbleState };
       setSearch(newSearchParams, { replace: true });
+      searchAsObjectRef.current = newSearchParams;
+
       hookStateRef.current = hookState;
     }
 
