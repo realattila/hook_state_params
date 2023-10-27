@@ -1,55 +1,23 @@
 // MAIN
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React from 'react';
 
 // HOOKS
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from './useSearchParams';
 
-const useCustomSearchParams = () => {
-  const [search, setSearch] = useSearchParams();
-  const searchAsObject = Object.fromEntries(new URLSearchParams(search));
+// HELPERS
+import {
+  convertNullUndefinedStringToValue,
+  findCurrentParamInValidParams,
+} from './helpers';
 
-  return { searchAsObject, setSearch };
-};
+// TYPES
+import type { UseSyncParamsWithState } from './types';
 
-type TAllowedTypeValue = boolean | number | string | null | undefined;
-type TUseSyncParamsWithState = <
-  S extends {
-    [key: string]: TAllowedTypeValue;
-  }
->(
-  state: S,
-  option: {
-    [Property in keyof S]: {
-      type: 'number' | 'string' | 'boolean';
-      enableParams?: boolean;
-      validParams?: Array<TAllowedTypeValue>;
-    };
-  }
-) => [S, React.Dispatch<React.SetStateAction<S>>];
+const useSyncParamsWithState: UseSyncParamsWithState = (state, option) => {
+  const { getAll, setAll: setSearch } = useSearchParams();
+  const searchAsObject = getAll();
 
-const findCurrenParamInValidParams = (
-  validParams: Array<TAllowedTypeValue>,
-  currentParams: string
-) => {
-  return validParams
-    .map((item) => String(item))
-    .find((item) => item === currentParams);
-};
-
-const convertNullUndefinedStringToValue = (value: string) => {
-  if (value === 'undefined') {
-    return undefined;
-  } else if (value === 'null') {
-    return null;
-  } else {
-    return value;
-  }
-};
-
-const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
-  const { searchAsObject, setSearch } = useCustomSearchParams();
-
-  const initState = useCallback(
+  const initState = React.useCallback(
     (passedState: typeof state) => {
       let tempState: any = {};
       // mapping state
@@ -70,16 +38,16 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
             const paramValue = String(searchAsObject[key]);
 
             // find
-            const findedValue = findCurrenParamInValidParams(
+            const foundValue = findCurrentParamInValidParams(
               option[key]?.validParams || [],
               paramValue
             );
 
             // value found
-            if (findedValue != undefined) {
+            if (foundValue != undefined) {
               const indexOfValue = option[key]?.validParams
                 ?.map((item) => String(item))
-                .indexOf(findedValue);
+                .indexOf(foundValue);
 
               // value index found is not undefined
               if (indexOfValue != undefined) {
@@ -199,9 +167,9 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
     [option, searchAsObject]
   );
 
-  const [hookState, setHookState] = useState(initState(state));
+  const [hookState, setHookState] = React.useState(initState(state));
 
-  const ParamAbleStateObject = useCallback(
+  const ParamAbleStateObject = React.useCallback(
     (passedState: typeof state): typeof state => {
       let temp: any = {};
 
@@ -216,29 +184,29 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
     },
     [option]
   );
-  const hookStateRef = useRef(hookState);
+  const hookStateRef = React.useRef(hookState);
 
-  const searchAsObjectRef = useRef(searchAsObject);
+  const searchAsObjectRef = React.useRef(searchAsObject);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (
       Object.entries(searchAsObject).toString() !=
       Object.entries(hookState).toString()
     ) {
       const ParamAbleState = ParamAbleStateObject(hookState);
-      setSearch({ ...searchAsObject, ...ParamAbleState }, { replace: true });
+      setSearch({ ...searchAsObject, ...ParamAbleState });
     }
   }, []);
 
-  useEffect(() => {
-    let isubScribed = true;
+  React.useEffect(() => {
+    let isSubscribed = true;
 
-    // parms has changed
+    // params has changed
     if (
       Object.entries(searchAsObject).toString() !=
       Object.entries(searchAsObjectRef.current).toString()
     ) {
-      if (isubScribed) {
+      if (isSubscribed) {
         // generate new state
         const newState = initState(hookState);
 
@@ -248,7 +216,7 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
         // generate new searchParams
         const newSearchParams = { ...searchAsObject, ...ParamAbleState };
 
-        setSearch(newSearchParams, { replace: true });
+        setSearch(newSearchParams);
         searchAsObjectRef.current = newSearchParams;
 
         setHookState(newState);
@@ -256,7 +224,7 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
       }
     }
 
-    // if state has chaned
+    // if state has changed
     if (
       Object.entries(hookState).toString() !=
       Object.entries(hookStateRef.current).toString()
@@ -266,14 +234,14 @@ const useSyncParamsWithState: TUseSyncParamsWithState = (state, option) => {
 
       // generate new searchParams
       const newSearchParams = { ...searchAsObject, ...ParamAbleState };
-      setSearch(newSearchParams, { replace: true });
+      setSearch(newSearchParams);
       searchAsObjectRef.current = newSearchParams;
 
       hookStateRef.current = hookState;
     }
 
     return () => {
-      isubScribed = false;
+      isSubscribed = false;
     };
   }, [searchAsObject, hookState, initState, setSearch, ParamAbleStateObject]);
 
