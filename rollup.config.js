@@ -1,17 +1,17 @@
 // rollup.config.js
-import terser from '@rollup/plugin-terser';
-import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import resolve from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
+import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
-import dts from 'rollup-plugin-dts';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
-import replace from 'rollup-plugin-replace';
+import dts from 'rollup-plugin-dts';
 
 import pkg from './package.json' assert { type: 'json' };
 
 export default [
   {
-    input: 'src/index.tsx',
+    input: 'src/index.ts',
     output: [
       {
         file: pkg.main,
@@ -37,7 +37,7 @@ export default [
     external: Object.keys(pkg.peerDependencies),
   },
   {
-    input: 'dist/esm/types/index.d.ts',
+    input: 'dist/types/index.d.ts',
     output: [{ file: 'dist/index.d.ts', format: 'esm' }],
     plugins: [dts()],
   },

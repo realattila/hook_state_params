@@ -1,8 +1,9 @@
 {
   "version": "0.2.0",
   "license": "MIT",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
   "type": "module",
   "files": [
@@ -19,9 +20,6 @@
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
-  "peerDependencies": {
-    "react": ">=16"
-  },
   "prettier": {
     "printWidth": 80,
     "semi": true,
@@ -29,29 +27,30 @@
     "trailingComma": "es5"
   },
   "name": "hook_state_params",
-  "author": "atiila",
+  "author": "Attila",
   "size-limit": [
     {
-      "path": "dist/hook_state_params.cjs.production.min.js",
-      "limit": "10 KB"
+      "path": "dist/index.js",
+      "limit": "100 KB"
     },
     {
       "path": "dist/hook_state_params.esm.js",
-      "limit": "10 KB"
+      "limit": "100 KB"
     }
   ],
+  "peerDependencies": {
+    "react": "^16.8.0  || ^17.0.0 || ^18.0.0"
+  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-replace": "^5.0.4",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.5",
     "@size-limit/preset-small-lib": "^8.1.0",
     "@types/react": "^18.2.33",
-    "react": "^18.2.0",
     "rollup": "^4.1.4",
-    "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-replace": "^2.2.0",
     "size-limit": "^10.0.1",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2"
@@ -73,5 +72,8 @@
     "type": "git",
     "url": "https://github.com/realattila/hook_state_params"
   },
-  "packageManager": "yarn@4.0.0"
+  "packageManager": "yarn@4.0.0",
+  "dependencies": {
+    "rollup-plugin-dts": "^6.1.0"
+  }
 }
