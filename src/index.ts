@@ -17,9 +17,9 @@ const useSyncParamsWithState: UseSyncParamsWithState = (state, option) => {
   const { getAll, setAll: setSearch } = useSearchParams();
   const searchAsObject = getAll();
 
+  let tempState: typeof state;
   const initState = React.useCallback(
     (passedState: typeof state) => {
-      let tempState: any = {};
       // mapping state
       Object.entries(passedState).forEach((itemState) => {
         const [key, value] = itemState;
@@ -44,15 +44,15 @@ const useSyncParamsWithState: UseSyncParamsWithState = (state, option) => {
             );
 
             // value found
-            if (foundValue != undefined) {
+            if (foundValue !== undefined) {
               const indexOfValue = option[key]?.validParams
                 ?.map((item) => String(item))
                 .indexOf(foundValue);
 
               // value index found is not undefined
-              if (indexOfValue != undefined) {
+              if (indexOfValue !== undefined) {
                 // value index found is not -1
-                if (indexOfValue != -1) {
+                if (indexOfValue !== -1) {
                   const foundedValue = (option[key]?.validParams || [])[
                     indexOfValue
                   ];
@@ -130,7 +130,7 @@ const useSyncParamsWithState: UseSyncParamsWithState = (state, option) => {
                     convertNullUndefinedStringToValue(paramValue);
 
                   // if convertedValue is not string
-                  if (typeof convertedValue != 'string') {
+                  if (typeof convertedValue !== 'string') {
                     return convertedValue;
                   } else {
                     // check if return value is NaN
@@ -169,10 +169,9 @@ const useSyncParamsWithState: UseSyncParamsWithState = (state, option) => {
 
   const [hookState, setHookState] = React.useState(initState(state));
 
+  let temp: Record<keyof typeof state, string>;
   const ParamAbleStateObject = React.useCallback(
-    (passedState: typeof state): typeof state => {
-      let temp: any = {};
-
+    (passedState: typeof state) => {
       Object.entries(passedState).forEach((item) => {
         const [key, value] = item;
         if (option[key].enableParams) {
@@ -190,7 +189,7 @@ const useSyncParamsWithState: UseSyncParamsWithState = (state, option) => {
 
   React.useEffect(() => {
     if (
-      Object.entries(searchAsObject).toString() !=
+      Object.entries(searchAsObject).toString() !==
       Object.entries(hookState).toString()
     ) {
       const ParamAbleState = ParamAbleStateObject(hookState);
@@ -203,7 +202,7 @@ const useSyncParamsWithState: UseSyncParamsWithState = (state, option) => {
 
     // params has changed
     if (
-      Object.entries(searchAsObject).toString() !=
+      Object.entries(searchAsObject).toString() !==
       Object.entries(searchAsObjectRef.current).toString()
     ) {
       if (isSubscribed) {
@@ -226,7 +225,7 @@ const useSyncParamsWithState: UseSyncParamsWithState = (state, option) => {
 
     // if state has changed
     if (
-      Object.entries(hookState).toString() !=
+      Object.entries(hookState).toString() !==
       Object.entries(hookStateRef.current).toString()
     ) {
       // generate params able state
