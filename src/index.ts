@@ -13,8 +13,14 @@ import {
 // TYPES
 import type { UseSyncParamsWithState } from './types';
 
-const useSyncParamsWithState: UseSyncParamsWithState = (state, option) => {
-  const { getAll, setAll: setSearch } = useSearchParams();
+const useSyncParamsWithState: UseSyncParamsWithState = (
+  state,
+  option,
+  setting
+) => {
+  const { getAll, setAll: setSearch } = useSearchParams({
+    urlUpdateType: setting?.urlUpdateType || 'push',
+  });
   const searchAsObject = getAll();
 
   let tempState: typeof state;
