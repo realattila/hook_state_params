@@ -25,7 +25,7 @@ type Params = {
  * @param params - Parameters for configuring the behavior of the hook.
  * @returns An object containing functions to get, set, get all, and set all search parameters.
  */
-export function useSearchParams(params: Params) {
+export function useSearchParams({ urlUpdateType }: Params) {
   const [searchParams, setSearchParams] = React.useState(
     new URLSearchParams(window.location.search)
   );
@@ -62,15 +62,9 @@ export function useSearchParams(params: Params) {
    * @param value - The new value for the search parameter.
    */
   const set = (key: string, value: string) => {
-    searchParams.set(key, value);
-
-    // Update the URL without a page refresh
-    const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
-    if (params.urlUpdateType === 'push') {
-      window.history.pushState({}, '', newUrl);
-    } else {
-      window.history.replaceState({}, '', newUrl);
-    }
+    const tempSearchParams = new URLSearchParams(searchParams);
+    tempSearchParams.set(key, value);
+    updateUrl(tempSearchParams);
   };
 
   /**
@@ -78,7 +72,7 @@ export function useSearchParams(params: Params) {
    *
    * @returns An object containing all search parameters.
    */
-  const getAll = () => {
+  const getAll = React.useCallback(() => {
     const params: { [key: string]: string | string[] } = {};
     searchParams.forEach((_value, key) => {
       if (!params[key]) {
@@ -86,7 +80,7 @@ export function useSearchParams(params: Params) {
       }
     });
     return params;
-  };
+  }, [searchParams]);
 
   /**
    * Set multiple search parameters and update the URL.
@@ -94,22 +88,22 @@ export function useSearchParams(params: Params) {
    * @param params - An object containing key-value pairs to set as search parameters.
    */
   const setAll = (params: { [key: string]: string }) => {
+    const tempSearchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
-      searchParams.set(key, value);
+      tempSearchParams.set(key, value);
     });
-
-    updateUrl(searchParams);
+    updateUrl(tempSearchParams);
   };
 
   // Helper function to update the URL without a page refresh
   const updateUrl = (newSearchParams: URLSearchParams) => {
     const newUrl = `${window.location.pathname}?${newSearchParams.toString()}`;
-    if (params.urlUpdateType === 'push') {
+    if (urlUpdateType === 'push') {
       window.history.pushState({}, '', newUrl);
     } else {
       window.history.replaceState({}, '', newUrl);
     }
   };
 
-  return { get, set, getAll, setAll };
+  return { get, set, getAll, setAll, searchParams };
 }

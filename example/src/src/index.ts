@@ -1,5 +1,5 @@
 // MAIN
-import React from 'react';
+import { useState } from 'react';
 
 // HOOKS
 import { useSearchParams } from './useSearchParams';
@@ -13,6 +13,8 @@ import {
 // TYPESc
 import type { UseSyncParamsWithState } from './types';
 
+const numberParser = () => {};
+
 const useSyncParamsWithState: UseSyncParamsWithState = (
   state,
   option,
@@ -22,23 +24,40 @@ const useSyncParamsWithState: UseSyncParamsWithState = (
     useSearchParams({
       urlUpdateType: setting.urlUpdateType,
     });
-  const searchAsObject = getAllSearchParams();
 
-  console.log('searchAsObject', searchAsObject);
+  const parseState = (
+    tempState: typeof state,
+    searchParams: ReturnType<typeof getAllSearchParams>,
+    preState:typeof state,
+  ) => {
+    let newState: typeof tempState;
+    Object.entries(tempState).forEach(([key, value]) => {
+      // if params in enabled
+      if(option[key].enableParams) {
 
-  const lastParsedStateValue = React.useRef({});
+      }
+      else {
+        // check valid values enabled
+        const validValues = option[key].validValues;
+        if(validValues) {
 
-  const ParsedState = React.useMemo(() => {
-    let tempValue;
+          if(validValues instanceof Array && validValues.includes(value)) {
+          
+          }
+          else {
 
-    Object.entries(state).entries(([key, value]) => {});
+          }
+        }
+      }
+    });
+  };
 
-    return tempValue;
-  }, [state, option]);
+  const [syncState, setSyncState] = useState(() => {
+    parseState(state, getAllSearchParams());
+    return state;
+  });
 
-  const setState = React.useCallback(() => {}, []);
-
-  return [ParsedState, setState];
+  return [syncState, setSyncState];
 
   // const initState = React.useCallback(
   //   (passedState: typeof state) => {

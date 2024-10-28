@@ -4,57 +4,33 @@ export type Setting = {
   urlUpdateType: urlUpdateType;
   ignoreOtherParams: boolean;
 };
-// export type UseSyncParamsWithState = <
-//   S extends {
-//     [key: string]: AllowedTypeValue;
-//   }
-// >(
-//   state: S,
-//   option: {
-//     [Property in keyof S]: {
-//       type: 'number' | 'string' | 'boolean';
-//       enableParams?: boolean;
-//       validParams?: Array<AllowedTypeValue>;
-//     };
-//   },
-//   setting?: Setting
-// ) => [S, React.Dispatch<React.SetStateAction<S>>];
+export type CommonOption = {
+  enableParams?: boolean;
+};
 
 export type UseSyncParamsWithState = <
   S extends {
-    [key: string]: AllowedTypeValue | AllowedTypeValue[];
+    [key: string]:
+      | AllowedTypeValue
+      | (boolean | null | undefined)[]
+      | (string | null | undefined)[]
+      | (number | null | undefined)[];
   }
 >(
   state: S,
   option: {
-    [Property in keyof S]: {
-      enableParam?: boolean;
-    } & (
-      | {
-          type: 'number';
-          validParams?: Omit<AllowedTypeValue, 'string' | 'boolean'>;
-        }
-      | {
-          type: 'string';
-          validParams?: Omit<AllowedTypeValue, 'number' | 'boolean'>;
-        }
-      | {
-          type: 'boolean';
-          validParams?: Omit<AllowedTypeValue, 'number' | 'string'>;
-        }
-      | {
-          type: 'number-array';
-          validParams?: Omit<AllowedTypeValue, 'string' | 'boolean'>[];
-        }
-      | {
-          type: 'string-array';
-          validParams?: Omit<AllowedTypeValue, 'number' | 'boolean'>[];
-        }
-      | {
-          type: 'boolean-array';
-          validParams?: Omit<AllowedTypeValue, 'number' | 'string'>[];
-        }
-    );
+    [Property in keyof S]: CommonOption & {
+      type:
+        | 'number'
+        | 'string'
+        | 'boolean'
+        | 'number-array'
+        | 'string-array'
+        | 'boolean-array';
+      validValues?: S[Property] extends Array<any>
+        ? S[Property]
+        : S[Property][];
+    };
   },
   setting?: Setting
-) => void;
+) => [S, React.Dispatch<React.SetStateAction<S>>];
